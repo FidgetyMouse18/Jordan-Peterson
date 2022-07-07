@@ -38,9 +38,12 @@ tsc
 To run the bot, first add your bot token to [api.json](config/api.json) and change settings as you wish. Extra clips can also be added to  [clips.json](config/clips.json) which the bot will randomly select from.
 
 Finally, to run the bot:
+
+Windows
 ```
-[windows]   node .\dist\index.js
+node .\dist\index.js
 ```
+Linux
 ```
-[linux]     node /dist/index.js
+node /dist/index.js
 ```
