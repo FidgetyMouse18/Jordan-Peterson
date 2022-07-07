@@ -6,13 +6,13 @@ interface apiConfig {
 }
 
 interface clips {
-  ytLinks: string[]
+  ytLinks: string[];
 }
 
 import Discord = require("discord.js");
 import DiscordVoice = require("@discordjs/voice");
 import AudioPlayer from "./AudioPlayer";
-import path = require('path');
+import path = require("path");
 
 let servers = {};
 
@@ -22,7 +22,11 @@ const client = new Discord.Client({
   intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_VOICE_STATES", "GUILD_MEMBERS"],
 });
 
-function createAudioPlayer(param: string, channelId: string, guild: Discord.Guild) {
+function createAudioPlayer(
+  param: string,
+  channelId: string,
+  guild: Discord.Guild
+) {
   //@ts-ignore
   if (servers[guild.id]) {
     //@ts-ignore
@@ -33,11 +37,7 @@ function createAudioPlayer(param: string, channelId: string, guild: Discord.Guil
       guildId: guild.id,
       adapterCreator: guild.voiceAdapterCreator,
     });
-    let audio = new AudioPlayer(
-      guild.id,
-      param,
-      connection
-    );
+    let audio = new AudioPlayer(guild.id, param, connection);
     //@ts-ignore
     servers[guild.id] = audio;
     audio.onDisconnect((guildId) => {
@@ -48,10 +48,12 @@ function createAudioPlayer(param: string, channelId: string, guild: Discord.Guil
 }
 
 async function leaveTimer(guildId: string) {
-  const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
   await sleep(config.LEAVE_SECONDS * 1000);
-  //@ts-ignore
-  servers[guildId].leave();
+  try {
+    //@ts-ignore
+    servers[guildId].leave();
+  } catch (er) {}
 }
 
 client
@@ -59,24 +61,24 @@ client
   .then(() => {
     console.log("Bot Successfully Logged In.");
     const the_interval = config.MINUTES * 60 * 1000;
-    setInterval(function() {
-      console.log("rolling chance")
+    setInterval(function () {
+      console.log("rolling chance");
       client.guilds.cache.forEach((guild) => {
         for (let [_, channel] of guild.channels.cache) {
           if (channel.isVoice() && channel.members.size > 0) {
             const x = Math.random();
-            console.log(x)
-            if (x <= (config.JOIN_CHANCE/100)) {
+            console.log(x);
+            if (x <= config.JOIN_CHANCE / 100) {
               const x = Math.random();
               const randomVid = Math.floor(x * clips.ytLinks.length);
               const vid = clips.ytLinks[randomVid];
               createAudioPlayer(vid, channel.id, guild);
               leaveTimer(guild.id);
             }
-            break
+            break;
           }
         }
-      })
+      });
     }, the_interval);
   })
   .catch((er) => {
